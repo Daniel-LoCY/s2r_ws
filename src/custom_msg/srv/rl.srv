@@ -1,0 +1,15 @@
+float32[] cubeA_quat
+float32[] cubeA_pos
+float32[] cubeB_pos
+float32[] cubeB_quat
+float32[] cubeC_pos
+float32[] cubeC_quat
+float32[] eef_pos
+float32[] eef_quat
+float32 obj
+float32 task
+float32[] target_pos
+float32[] target_quat
+float32[] q_gripper
+---
+float32[] action

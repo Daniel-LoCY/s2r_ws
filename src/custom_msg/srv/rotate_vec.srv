@@ -1,0 +1,5 @@
+float32[] vector
+float32[] axis
+float32 angle_degrees
+---
+float32[] rotated
