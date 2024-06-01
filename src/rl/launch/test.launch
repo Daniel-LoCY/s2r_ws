@@ -1,0 +1,13 @@
+<launch>
+
+    <group>
+
+        <arg name="test" default="0 0 1 0 0 0 0" />
+
+        <node pkg="rl" type="static_tf.py" name="test" output="screen">
+            <param name="test" value="$(arg test)" />
+        </node>
+
+    </group>
+
+</launch>

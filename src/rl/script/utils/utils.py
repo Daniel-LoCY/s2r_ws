@@ -124,7 +124,7 @@ class TF(Tranform):
     這裡是放ROS TF會用到的Function
     '''
 
-    def pub_tf(self, x, y, z, rx, ry, rz, header_frame_id="arm", child_frame_id="tool"):
+    def pub_tf(self, tf, header_frame_id="arm", child_frame_id="tool"):
         br = TransformBroadcaster()
         t = TransformStamped()
 
@@ -132,18 +132,18 @@ class TF(Tranform):
         t.header.frame_id = header_frame_id
         t.child_frame_id = child_frame_id
 
-        t.transform.translation.x = x
-        t.transform.translation.y = y
-        t.transform.translation.z = z
+        t.transform.translation.x = tf[0]
+        t.transform.translation.y = tf[1]
+        t.transform.translation.z = tf[2]
 
-        quat = self.euler_to_orientation(rx, ry, rz)
+        quat = self.euler_to_orientation(tf[3], tf[4], tf[5])
         t.transform.rotation.x = quat[0]
         t.transform.rotation.y = quat[1]
         t.transform.rotation.z = quat[2]
         t.transform.rotation.w = quat[3]
         br.sendTransform(t)
 
-    def pub_tf_static(self, x, y, z, rx, ry, rz, header_frame_id="tool", child_frame_id="tool_target"):
+    def pub_tf_static(self, tf, header_frame_id="tool", child_frame_id="tool_target"):
         br = StaticTransformBroadcaster()
         t = TransformStamped()
 
@@ -151,18 +151,18 @@ class TF(Tranform):
         t.header.frame_id = header_frame_id
         t.child_frame_id = child_frame_id
 
-        t.transform.translation.x = x
-        t.transform.translation.y = y
-        t.transform.translation.z = z
+        t.transform.translation.x = tf[0]
+        t.transform.translation.y = tf[1]
+        t.transform.translation.z = tf[2]
 
-        quat = self.euler_to_orientation(rx, ry, rz)
+        quat = self.euler_to_orientation(tf[3], tf[4], tf[5])
         t.transform.rotation.x = quat[0]
         t.transform.rotation.y = quat[1]
         t.transform.rotation.z = quat[2]
         t.transform.rotation.w = quat[3]
         br.sendTransform(t)
 
-    def pub_tf_static_orientation(self, x, y, z, rx, ry, rz, rw, header_frame_id, child_frame_id):
+    def pub_tf_static_orientation(self, tf, header_frame_id, child_frame_id):
         br = StaticTransformBroadcaster()
         t = TransformStamped()
 
@@ -170,14 +170,14 @@ class TF(Tranform):
         t.header.frame_id = header_frame_id
         t.child_frame_id = child_frame_id
 
-        t.transform.translation.x = x
-        t.transform.translation.y = y
-        t.transform.translation.z = z
+        t.transform.translation.x = tf[0]
+        t.transform.translation.y = tf[1]
+        t.transform.translation.z = tf[2]
 
-        t.transform.rotation.x = rx
-        t.transform.rotation.y = ry
-        t.transform.rotation.z = rz
-        t.transform.rotation.w = rw
+        t.transform.rotation.x = tf[3]
+        t.transform.rotation.y = tf[4]
+        t.transform.rotation.z = tf[5]
+        t.transform.rotation.w = tf[6]
         br.sendTransform(t)
 
 
