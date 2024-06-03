@@ -4,7 +4,7 @@ import cv2
 import numpy as np
 from scipy.spatial.transform import Rotation as R
 import rospy
-from utils.utils import *
+from utils import *
 
 rospy.init_node('aruco_pose_estimation')
 
@@ -16,10 +16,13 @@ aruco_params = cv2.aruco.DetectorParameters()
 
 marker_size = 0.08  
 
-camera_matrix = np.load('camera_calibration/UCAM-G1/cam_matrix.npy')
-dist_coeffs = np.load('camera_calibration/UCAM-G1/cam_distortion.npy')
+CAMERA_INDEX = 2
+CAMERA_MODEL = 'UCAM-G1'
 
-cap = cv2.VideoCapture(2)
+camera_matrix = np.load(f'camera_calibration/{CAMERA_MODEL}/cam_matrix.npy')
+dist_coeffs = np.load(f'camera_calibration/{CAMERA_MODEL}/cam_distortion.npy')
+
+cap = cv2.VideoCapture(CAMERA_INDEX)
 
 while True:
     ret, frame = cap.read()
@@ -46,14 +49,14 @@ while True:
             rotation = R.from_matrix(R_mat)
             quat = rotation.as_quat()
 
-            euler_angles = rotation.as_euler('xyz', degrees=True)
+            # euler_angles = rotation.as_euler('xyz', degrees=True)
 
             t = (camera_position[0], camera_position[1], camera_position[2], quat[0], quat[1], quat[2], quat[3])
 
             if id == 0:
-                tf.pub_tf_static_orientation(t, f'aruco_locate', 'camera_link')
+                tf.pub_static_tf_orientation(t, f'aruco_locate', 'camera_link')
             else:
-                tf.pub_tf_static_orientation(t, f'camera_link', f'object_{id}')
+                tf.pub_static_tf_orientation(t, f'camera_link', f'object_{id}')
 
             # print(f"ArUco ID: {id}, 相机在标记中的位置: {camera_position}, 四元数: {quat}, 欧拉角: {euler_angles}")
 

@@ -124,7 +124,13 @@ class TF(Tranform):
     這裡是放ROS TF會用到的Function
     '''
 
-    def pub_tf(self, tf, header_frame_id="arm", child_frame_id="tool"):
+    def pub_tf(self, tf, header_frame_id="arm", child_frame_id="tool"):        
+        '''
+            Publish tf with euler angles \n
+            - tf: (x, y, z, roll, pitch, yaw) in mm and degrees
+            - header_frame_id: parent frame id
+            - child_frame_id: child frame id
+        '''
         br = TransformBroadcaster()
         t = TransformStamped()
 
@@ -143,7 +149,13 @@ class TF(Tranform):
         t.transform.rotation.w = quat[3]
         br.sendTransform(t)
 
-    def pub_tf_static(self, tf, header_frame_id="tool", child_frame_id="tool_target"):
+    def pub_static_tf(self, tf, header_frame_id="tool", child_frame_id="tool_target"):
+        '''
+            Publish static tf with euler angles \n
+            - tf: (x, y, z, roll, pitch, yaw) in mm and degrees
+            - header_frame_id: parent frame id
+            - child_frame_id: child frame id
+        '''
         br = StaticTransformBroadcaster()
         t = TransformStamped()
 
@@ -162,7 +174,13 @@ class TF(Tranform):
         t.transform.rotation.w = quat[3]
         br.sendTransform(t)
 
-    def pub_tf_static_orientation(self, tf, header_frame_id, child_frame_id):
+    def pub_static_tf_orientation(self, tf, header_frame_id, child_frame_id):
+        '''
+            Publish static tf with orientation \n
+            - tf: (x, y, z, qx, qy, qz, qw) in mm and quaternion
+            - header_frame_id: parent frame id
+            - child_frame_id: child frame id
+        '''
         br = StaticTransformBroadcaster()
         t = TransformStamped()
 
@@ -182,13 +200,18 @@ class TF(Tranform):
 
 
     def get_tf(self, header_frame, child_frame): # 取得tf,  return transform
+        '''
+        Get the transform between two frames \n
+            - header_frame: parent frame id
+            - child_frame: child frame id
+        '''
         tfBuffer = Buffer()
         _listener = TransformListener(tfBuffer)
         while not rospy.is_shutdown():
             try:
                 t = tfBuffer.lookup_transform(header_frame, child_frame, rospy.Time())
                 transform = t.transform
-                print(transform)
+                rospy.loginfo(transform)
                 # translation from m to mm
                 transform.translation.x = transform.translation.x * 1000
                 transform.translation.y = transform.translation.y * 1000
