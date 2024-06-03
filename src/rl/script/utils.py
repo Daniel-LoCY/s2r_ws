@@ -1,5 +1,6 @@
 from tm_msgs.msg import *
 from tm_msgs.srv import *
+from custom_msg.srv import *
 import rospy
 from tf2_ros import TransformBroadcaster, TransformListener, Buffer, StaticTransformBroadcaster
 from geometry_msgs.msg import TransformStamped

@@ -72,7 +72,7 @@ def rotate_vector(params: rotate_vecRequest):
 
 
 if __name__ == '__main__':
-    model_path = f"/catkin_ws/models/test.onnx"
+    model_path = f"/s2r_ws/models/test.onnx"
     onnx_model = onnx.load(model_path)
     onnx.checker.check_model(onnx_model)
     loaded_model = ort.InferenceSession(model_path)
