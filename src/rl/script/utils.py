@@ -199,11 +199,13 @@ class TF(Tranform):
         br.sendTransform(t)
 
 
-    def get_tf(self, header_frame, child_frame): # 取得tf,  return transform
+    def get_tf(self, header_frame, child_frame, m2mm = False): # 取得tf,  return transform
         '''
         Get the transform between two frames \n
             - header_frame: parent frame id
             - child_frame: child frame id
+            -----------------------------------
+            return transform (translation, rotation)
         '''
         tfBuffer = Buffer()
         _listener = TransformListener(tfBuffer)
@@ -211,18 +213,39 @@ class TF(Tranform):
             try:
                 t = tfBuffer.lookup_transform(header_frame, child_frame, rospy.Time())
                 transform = t.transform
-                rospy.loginfo(transform)
-                # translation from m to mm
-                transform.translation.x = transform.translation.x * 1000
-                transform.translation.y = transform.translation.y * 1000
-                transform.translation.z = transform.translation.z * 1000
-                # rotation from quaternion to euler
-                euler = self.orientation_to_euler(transform.rotation.x, transform.rotation.y, transform.rotation.z, transform.rotation.w)
-                # radius to degree
-                transform.rotation.x = euler[0]
-                transform.rotation.y = euler[1]
-                transform.rotation.z = euler[2]
+                # rospy.loginfo(transform)
+                
+                if m2mm:
+                    transform.translation.x = transform.translation.x * 1000
+                    transform.translation.y = transform.translation.y * 1000
+                    transform.translation.z = transform.translation.z * 1000
+                
                 return transform
             except Exception as e:
                 # print(e)
                 pass
+
+def req_action(obs):
+    rospy.wait_for_service('/get_action')
+    get_action = rospy.ServiceProxy('/get_action', rl)
+    req = rlRequest()
+    req.cubeA_pos = (0, 0, 0)
+    req.cubeA_quat = (0, 0, 0, 1)
+    req.cubeB_pos = (0, 0, 0)
+    req.cubeB_quat = (0, 0, 0, 1)
+    req.cubeC_pos = (0, 0, 0)
+    req.cubeC_quat = (0, 0, 0, 1)
+    req.eef_pos = (0, 0, 0)
+    req.eef_quat = (0, 0, 0, 1)
+    req.obj = 0
+    req.task = 0
+    req.target_pos = (0, 0, 0)
+    req.target_quat = (0, 0, 0, 1)
+    req.q_gripper = (0, 0)
+    
+    action = get_action(req).action
+    arm = action[:6]
+    gripper = action[6]
+    rospy.loginfo(f'arm: {arm}')
+    rospy.loginfo(f'gripper: {gripper}')
+    return action

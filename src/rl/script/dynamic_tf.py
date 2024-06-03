@@ -14,8 +14,8 @@ aruco_dict = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_5X5_100)
 
 aruco_params = cv2.aruco.DetectorParameters()
 
-marker_size = 0.08  
-
+DISPLAY = True
+MARKER_SIZE = 0.08  
 CAMERA_INDEX = 2
 CAMERA_MODEL = 'UCAM-G1'
 
@@ -34,7 +34,7 @@ while True:
     if ids is not None:
         frame = cv2.aruco.drawDetectedMarkers(frame, corners, ids)
 
-        rvecs, tvecs, _ = cv2.aruco.estimatePoseSingleMarkers(corners, marker_size, camera_matrix, dist_coeffs)
+        rvecs, tvecs, _ = cv2.aruco.estimatePoseSingleMarkers(corners, MARKER_SIZE, camera_matrix, dist_coeffs)
 
         for i in range(len(ids)):
             id = ids[i][0]
@@ -60,10 +60,11 @@ while True:
 
             # print(f"ArUco ID: {id}, 相机在标记中的位置: {camera_position}, 四元数: {quat}, 欧拉角: {euler_angles}")
 
-    cv2.imshow('color', frame)
+    if DISPLAY:
+        cv2.imshow('color', frame)
 
-    if cv2.waitKey(1) == ord('q'):
-        break
+        if cv2.waitKey(1) == ord('q'):
+            break
 
 cap.release()
 cv2.destroyAllWindows()
