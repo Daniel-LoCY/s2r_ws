@@ -226,7 +226,7 @@ class TF(Tranform):
                 # print(e)
                 pass
 
-def req_action(obs):
+def req_action(obs: rlRequest):
     rospy.wait_for_service('/get_action')
     get_action = rospy.ServiceProxy('/get_action', rl)
     req = rlRequest()
