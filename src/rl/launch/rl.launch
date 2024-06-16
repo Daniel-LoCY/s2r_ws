@@ -1,0 +1,135 @@
+<launch>
+
+    <!-- Main Node -->
+
+    <node pkg="rl" type="main.py" name="main" output="screen" />
+
+    <!-- Main Node -->
+
+
+    <!-- Static TF -->
+    
+    <group>
+        <arg name="tf" default="-1 0 1.05 0 0 0 1" />
+        <arg name="header_frame_id" default="world" />
+        <arg name="child_frame_id" default="base" />
+
+        <node pkg="rl" type="static_tf.py" name="tf_world_to_base" output="screen">
+            <param name="tf" value="$(arg tf)" />
+            <param name="header_frame_id" value="$(arg header_frame_id)" />
+            <param name="child_frame_id" value="$(arg child_frame_id)" />
+        </node>
+    </group>
+
+    <group>
+        <arg name="tf" default="0.11 0.23 0.105 0 0 0 1" />
+        <arg name="header_frame_id" default="base" />
+        <arg name="child_frame_id" default="aruco_locate_r" />
+
+        <node pkg="rl" type="static_tf.py" name="tf_base_to_aruco_locate_r" output="screen">
+            <param name="tf" value="$(arg tf)" />
+            <param name="header_frame_id" value="$(arg header_frame_id)" />
+            <param name="child_frame_id" value="$(arg child_frame_id)" />
+        </node>
+    </group>
+    
+    <group>
+        <arg name="tf" default="0.11 -0.23 0.105 0 0 0 1" />
+        <arg name="header_frame_id" default="base" />
+        <arg name="child_frame_id" default="aruco_locate_l" />
+
+        <node pkg="rl" type="static_tf.py" name="tf_base_to_aruco_locate_l" output="screen">
+            <param name="tf" value="$(arg tf)" />
+            <param name="header_frame_id" value="$(arg header_frame_id)" />
+            <param name="child_frame_id" value="$(arg child_frame_id)" />
+        </node>
+    </group>
+
+    <!-- Static TF -->
+    
+
+
+    <!-- Camera -->
+
+    <group>
+        <arg name="index" default="2" />
+        <arg name="camera_matrix_file" default="$(find rl)/camera_calibration/logi/cam_matrix.npy" />
+        <arg name="distortion_coefficients_file" default="$(find rl)/camera_calibration/logi/cam_distortion.npy" />
+
+        <node pkg="rl" type="capture.py" name="capture$(arg index)" output="screen">
+            <param name="index" value="$(arg index)" />
+            <param name="camera_matrix_file" value="$(arg camera_matrix_file)" />
+            <param name="distortion_coefficients_file" value="$(arg distortion_coefficients_file)" />
+        </node>
+    </group>
+
+    <group>
+        <arg name="index" default="4" />
+        <arg name="camera_matrix_file" default="$(find rl)/camera_calibration/UCAM-G1/cam_matrix.npy" />
+        <arg name="distortion_coefficients_file" default="$(find rl)/camera_calibration/UCAM-G1/cam_distortion.npy" />
+
+        <node pkg="rl" type="capture.py" name="capture$(arg index)" output="screen">
+            <param name="index" value="$(arg index)" />
+            <param name="camera_matrix_file" value="$(arg camera_matrix_file)" />
+            <param name="distortion_coefficients_file" value="$(arg distortion_coefficients_file)" />
+        </node>
+    </group>
+
+    <!-- Camera -->
+
+
+
+    <!-- Locate -->
+
+    <arg name="display" default="False" />
+
+    <group>
+        <arg name="camera" default="2" />
+        <node pkg="rl" type="locate.py" name="locate1" output="screen">
+            <param name="camera" value="$(arg camera)"/>
+            <param name="display" value="$(arg display)"/>
+        </node>
+    </group>
+
+    <group>
+        <arg name="camera" default="4" />
+        <node pkg="rl" type="locate.py" name="locate2" output="screen">
+            <param name="camera" value="$(arg camera)"/>
+            <param name="display" value="$(arg display)"/>
+        </node>
+    </group>
+
+    <group>
+        <arg name="camera" default="2" />
+        <node pkg="rl" type="obj_pos_estimation.py" name="obj_pos_estimation1" output="screen">
+            <param name="camera" value="$(arg camera)"/>
+            <param name="display" value="$(arg display)"/>
+        </node>
+    </group>
+
+    <group>
+        <arg name="camera" default="4" />
+        <node pkg="rl" type="obj_pos_estimation.py" name="obj_pos_estimation2" output="screen">
+            <param name="camera" value="$(arg camera)"/>
+            <param name="display" value="$(arg display)"/>
+        </node>
+    </group>
+
+    <!-- Locate -->
+
+
+
+    <!-- Service -->
+
+    <node pkg="rl" type="service.py" name="service" output="screen" />
+
+    <!-- Service -->
+
+
+    <!-- Rviz -->
+
+    <node pkg="rviz" type="rviz" name="rviz" args="-d $(find rl)/rviz_config.rviz" />
+
+    <!-- Rviz -->
+
+</launch>

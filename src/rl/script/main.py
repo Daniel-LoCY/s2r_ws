@@ -2,16 +2,14 @@
 
 import rospy
 from tm_msgs.msg import *
-from rospy import loginfo
-from utils.utils import *
+from utils import *
 
 rospy.init_node('main_node')
-loginfo('=== main_node start ===')
+rospy.loginfo('=== main_node start ===')
 
 tm = TM()
 tf = TF()
 
-loginfo(tm.tool_x)
+tm_feedback = rospy.Subscriber('feedback_states', FeedbackState, tm.feedback_callback)
 
-# sub_feedback = rospy.Subscriber('feedback_states', FeedbackState, tm.feedback_callback)
-# rospy.spin()
+rospy.spin()

@@ -5,8 +5,26 @@ import numpy as np
 from scipy.spatial.transform import Rotation as R
 import rospy
 from utils import *
+import signal
+from sensor_msgs.msg import Image
+from cv_bridge import CvBridge
 
-rospy.init_node('aruco_pose_estimation')
+running = True
+
+def signal_handler(sig, frame):
+    global running
+    running = False
+
+# 註冊信號處理器
+signal.signal(signal.SIGINT, signal_handler)
+rospy.init_node(f'obj_pos_estimation')
+
+camera = rospy.get_param('~camera')
+index = rospy.get_param(f'~/capture{camera}/index')
+camera_matrix = rospy.get_param(f'~/capture{camera}/camera_matrix_file')
+dist_coeffs = rospy.get_param(f'~/capture{camera}/distortion_coefficients_file')
+
+# rospy.loginfo('obj_pos_estimation: %s, %s', camera_matrix, dist_coeffs)
 
 tf = TF()
 
@@ -14,20 +32,18 @@ aruco_dict = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_5X5_100)
 
 aruco_params = cv2.aruco.DetectorParameters()
 
-DISPLAY = True
-MARKER_SIZE = 0.08  
-CAMERA_INDEX = 2
-CAMERA_MODEL = 'UCAM-G1'
+DISPLAY = rospy.get_param('~display')
+MARKER_SIZE = 0.04
 
-camera_matrix = np.load(f'camera_calibration/{CAMERA_MODEL}/cam_matrix.npy')
-dist_coeffs = np.load(f'camera_calibration/{CAMERA_MODEL}/cam_distortion.npy')
+camera_matrix = np.load(camera_matrix)
+dist_coeffs = np.load(dist_coeffs)
 
-cap = cv2.VideoCapture(CAMERA_INDEX)
+cv_bridge = CvBridge()
 
-while True:
-    ret, frame = cap.read()
-    if not ret:
-        continue
+while running:
+    frame = rospy.wait_for_message(f'camera{camera}', Image)
+    
+    frame = cv_bridge.imgmsg_to_cv2(frame, 'passthrough').copy()
 
     corners, ids, rejected = cv2.aruco.detectMarkers(frame, aruco_dict, parameters=aruco_params)
 
@@ -44,25 +60,21 @@ while True:
             cv2.drawFrameAxes(frame, camera_matrix, dist_coeffs, rvec, tvec, 0.05)
 
             R_mat, _ = cv2.Rodrigues(rvec)
-            camera_position = -R_mat.T @ tvec
+            obj_position = tvec
 
             rotation = R.from_matrix(R_mat)
             quat = rotation.as_quat()
 
-            # euler_angles = rotation.as_euler('xyz', degrees=True)
+            t = (obj_position[0], obj_position[1], obj_position[2], quat[0], quat[1], quat[2], quat[3])
 
-            t = (camera_position[0], camera_position[1], camera_position[2], quat[0], quat[1], quat[2], quat[3])
-
-            if (id != 0) and (id != 1):
-                tf.pub_static_tf_orientation(t, f'camera_link', f'object_{id-1}')
-
-            # print(f"ArUco ID: {id}, 相机在标记中的位置: {camera_position}, 四元数: {quat}, 欧拉角: {euler_angles}")
+            tf.pub_tf_orientation(t, f'camera_link{index}', f'object_{id}')
+            
 
     if DISPLAY:
-        cv2.imshow('color', frame)
+        cv2.imshow(f'camera{camera}', frame)
 
         if cv2.waitKey(1) == ord('q'):
             break
 
-cap.release()
-cv2.destroyAllWindows()
+# cap.release()
+# cv2.destroyAllWindows()

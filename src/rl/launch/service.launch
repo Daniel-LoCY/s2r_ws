@@ -1,5 +1,0 @@
-<launch>
-
-    <node pkg="rl" type="service.py" name="service" output="screen" />
-
-</launch>

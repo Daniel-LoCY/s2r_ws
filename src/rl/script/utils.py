@@ -6,6 +6,7 @@ from tf2_ros import TransformBroadcaster, TransformListener, Buffer, StaticTrans
 from geometry_msgs.msg import TransformStamped
 import math
 import numpy as np
+from scipy.spatial.transform import Rotation as R
 
 class TM:
     '''
@@ -119,6 +120,13 @@ class Tranform:
         yaw_z = math.degrees(yaw_z)
         
         return np.array([roll_x, pitch_y, yaw_z])
+    
+    def quat_conj(self, quat):
+        '''
+        Calculate the conjugate of a quaternion \n
+        quaternion: (x, y, z, w)
+        '''
+        return (-quat[0], -quat[1], -quat[2], quat[3])
 
 class TF(Tranform):
     '''
@@ -148,6 +156,30 @@ class TF(Tranform):
         t.transform.rotation.y = quat[1]
         t.transform.rotation.z = quat[2]
         t.transform.rotation.w = quat[3]
+        br.sendTransform(t)
+
+    def pub_tf_orientation(self, tf, header_frame_id="arm", child_frame_id="tool"):        
+        '''
+            Publish tf with euler angles \n
+            - tf: (x, y, z, qx, qy, qz, qw) in mm and quaternion
+            - header_frame_id: parent frame id
+            - child_frame_id: child frame id
+        '''
+        br = TransformBroadcaster()
+        t = TransformStamped()
+
+        t.header.stamp = rospy.Time.now()
+        t.header.frame_id = header_frame_id
+        t.child_frame_id = child_frame_id
+
+        t.transform.translation.x = tf[0]
+        t.transform.translation.y = tf[1]
+        t.transform.translation.z = tf[2]
+
+        t.transform.rotation.x = tf[3]
+        t.transform.rotation.y = tf[4]
+        t.transform.rotation.z = tf[5]
+        t.transform.rotation.w = tf[6]
         br.sendTransform(t)
 
     def pub_static_tf(self, tf, header_frame_id="tool", child_frame_id="tool_target"):
@@ -225,7 +257,7 @@ class TF(Tranform):
             except Exception as e:
                 # print(e)
                 pass
-
+            
 def req_action(obs: rlRequest):
     rospy.wait_for_service('/get_action')
     get_action = rospy.ServiceProxy('/get_action', rl)
