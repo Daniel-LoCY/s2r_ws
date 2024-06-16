@@ -5,13 +5,15 @@ import onnx
 import onnxruntime as ort
 import numpy as np
 from custom_msg.srv import *
-import tf.transformations as tf
+# import tf.transformations as tf
 
-def get_actions(obs: rlRequest):
+def req_action(obs: rlRequest):
     obs_list = [obs.cubeA_quat, obs.cubeA_pos, obs.cubeB_pos, obs.cubeB_quat, obs.cubeC_pos, obs.cubeC_quat, obs.eef_pos, obs.eef_quat, tuple([obs.obj]), tuple([obs.task]), obs.target_pos, obs.target_quat, obs.q_gripper]
     YOUR_OBS = np.array([np.concatenate(obs_list)])
     outputs = loaded_model.run(None, {"obs": YOUR_OBS.astype(np.float32)})[0][0]
-    return [outputs.tolist()]
+    resp = rlResponse()
+    resp.action = outputs.tolist()
+    return resp
 
 # def rotate_vector(params: rotate_vecRequest):
 #     """
@@ -59,6 +61,6 @@ if __name__ == '__main__':
 
     rospy.init_node('service')
     # rospy.loginfo('service node start')
-    rospy.Service('/get_action', rl, get_actions)
+    rospy.Service('/req_action', rl, req_action)
     # rospy.Service('/rotate_vector', rotate_vec, rotate_vector)
     rospy.spin()

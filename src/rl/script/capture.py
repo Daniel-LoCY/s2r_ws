@@ -9,8 +9,6 @@ import signal
 rospy.init_node('camera_node')
 bridge = CvBridge()
 
-DISPLAY= False
-
 CAMERA_INDEX = rospy.get_param('~index')
 pub = rospy.Publisher(f'camera{CAMERA_INDEX}', Image, queue_size=1)
 
@@ -20,7 +18,6 @@ def signal_handler(sig, frame):
     global running
     running = False
 
-# 註冊信號處理器
 signal.signal(signal.SIGINT, signal_handler)
 
 cap = cv2.VideoCapture(CAMERA_INDEX)
@@ -33,10 +30,4 @@ while running:
     image_message = bridge.cv2_to_imgmsg(frame, encoding='passthrough')
     pub.publish(image_message)
 
-    if DISPLAY:
-        cv2.imshow(f'camera{CAMERA_INDEX}', frame)
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
-
 cap.release()
-cv2.destroyAllWindows()

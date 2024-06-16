@@ -8,6 +8,7 @@ from utils import *
 import signal
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
+from tf.transformations import quaternion_conjugate
 
 running = True
 
@@ -15,7 +16,6 @@ def signal_handler(sig, frame):
     global running
     running = False
 
-# 註冊信號處理器
 signal.signal(signal.SIGINT, signal_handler)
 rospy.init_node(f'locate_camera')
 
@@ -65,7 +65,7 @@ while running:
             rotation = R.from_matrix(R_mat)
             quat = rotation.as_quat()
 
-            quat = tf.quat_conj(quat)
+            quat = quaternion_conjugate(quat)
 
             t = (camera_position[0], camera_position[1], camera_position[2], quat[0], quat[1], quat[2], quat[3])
 

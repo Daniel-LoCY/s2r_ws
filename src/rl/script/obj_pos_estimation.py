@@ -8,6 +8,7 @@ from utils import *
 import signal
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
+from tf.transformations import quaternion_multiply
 
 running = True
 
@@ -15,7 +16,6 @@ def signal_handler(sig, frame):
     global running
     running = False
 
-# 註冊信號處理器
 signal.signal(signal.SIGINT, signal_handler)
 rospy.init_node(f'obj_pos_estimation')
 
@@ -64,6 +64,9 @@ while running:
 
             rotation = R.from_matrix(R_mat)
             quat = rotation.as_quat()
+
+            _quat = (0, -0.707, 0, 0.707)
+            quat = quaternion_multiply(quat, _quat)
 
             t = (obj_position[0], obj_position[1], obj_position[2], quat[0], quat[1], quat[2], quat[3])
 

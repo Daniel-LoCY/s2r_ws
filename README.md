@@ -4,9 +4,9 @@
 
 1. 安裝ROS會用到的延伸模組
 
-   1. 安裝ROS延伸模組
-   2. 安裝C/C++延伸模組
-   3. 安裝Python延伸模組
+   1. ROS
+   2. C/C++
+   3. Python
 
 2. 設定Vscode json檔
 

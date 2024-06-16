@@ -4,9 +4,7 @@ from custom_msg.srv import *
 import rospy
 from tf2_ros import TransformBroadcaster, TransformListener, Buffer, StaticTransformBroadcaster
 from geometry_msgs.msg import TransformStamped
-import math
-import numpy as np
-from scipy.spatial.transform import Rotation as R
+from tf.transformations import quaternion_from_euler
 
 class TM:
     '''
@@ -56,79 +54,7 @@ class TM:
         except rospy.ServiceException as e:
             print("Service call failed: %s" % e)
 
-class Tranform:
-    '''
-    這裡是放歐拉角和四元數的Function
-    '''
-
-    def euler_to_orientation(self, roll, pitch, yaw):
-        '''
-        Convert euler angles to quaternion \n
-        euler: (roll, pitch, yaw) in degrees \n
-        quaternion: (x, y, z, w)
-        '''
-        # Convert degrees to radians
-        roll_rad = math.radians(roll)
-        pitch_rad = math.radians(pitch)
-        yaw_rad = math.radians(yaw)
-        
-        # Calculate quaternion components
-        cy = math.cos(yaw_rad * 0.5)
-        sy = math.sin(yaw_rad * 0.5)
-        cp = math.cos(pitch_rad * 0.5)
-        sp = math.sin(pitch_rad * 0.5)
-        cr = math.cos(roll_rad * 0.5)
-        sr = math.sin(roll_rad * 0.5)
-        
-        w = cy * cp * cr + sy * sp * sr
-        x = cy * cp * sr - sy * sp * cr
-        y = sy * cp * sr + cy * sp * cr
-        z = sy * cp * cr - cy * sp * sr
-        
-        # Normalize quaternion
-        length = math.sqrt(w**2 + x**2 + y**2 + z**2)
-        w /= length
-        x /= length
-        y /= length
-        z /= length
-        
-        return np.array([x, y, z, w])
-
-    def orientation_to_euler(self, x, y, z, w):
-        '''
-        Convert quaternion to euler angles \n
-        euler: (roll, pitch, yaw) in degrees \n
-        quaternion: (x, y, z, w)
-        '''
-        # Convert quaternion components to euler angles in radians
-        t0 = +2.0 * (w * x + y * z)
-        t1 = +1.0 - 2.0 * (x * x + y * y)
-        roll_x = math.atan2(t0, t1)
-        
-        t2 = +2.0 * (w * y - z * x)
-        t2 = +1.0 if t2 > +1.0 else t2
-        t2 = -1.0 if t2 < -1.0 else t2
-        pitch_y = math.asin(t2)
-        
-        t3 = +2.0 * (w * z + x * y)
-        t4 = +1.0 - 2.0 * (y * y + z * z)
-        yaw_z = math.atan2(t3, t4)
-        
-        # Convert to degrees
-        roll_x = math.degrees(roll_x)
-        pitch_y = math.degrees(pitch_y)
-        yaw_z = math.degrees(yaw_z)
-        
-        return np.array([roll_x, pitch_y, yaw_z])
-    
-    def quat_conj(self, quat):
-        '''
-        Calculate the conjugate of a quaternion \n
-        quaternion: (x, y, z, w)
-        '''
-        return (-quat[0], -quat[1], -quat[2], quat[3])
-
-class TF(Tranform):
+class TF():
     '''
     這裡是放ROS TF會用到的Function
     '''
@@ -151,7 +77,7 @@ class TF(Tranform):
         t.transform.translation.y = tf[1]
         t.transform.translation.z = tf[2]
 
-        quat = self.euler_to_orientation(tf[3], tf[4], tf[5])
+        quat = quaternion_from_euler(tf[3], tf[4], tf[5])
         t.transform.rotation.x = quat[0]
         t.transform.rotation.y = quat[1]
         t.transform.rotation.z = quat[2]
@@ -200,7 +126,7 @@ class TF(Tranform):
         t.transform.translation.y = tf[1]
         t.transform.translation.z = tf[2]
 
-        quat = self.euler_to_orientation(tf[3], tf[4], tf[5])
+        quat = quaternion_from_euler(tf[3], tf[4], tf[5])
         t.transform.rotation.x = quat[0]
         t.transform.rotation.y = quat[1]
         t.transform.rotation.z = quat[2]
@@ -257,28 +183,3 @@ class TF(Tranform):
             except Exception as e:
                 # print(e)
                 pass
-            
-def req_action(obs: rlRequest):
-    rospy.wait_for_service('/get_action')
-    get_action = rospy.ServiceProxy('/get_action', rl)
-    req = rlRequest()
-    req.cubeA_pos = (0, 0, 0)
-    req.cubeA_quat = (0, 0, 0, 1)
-    req.cubeB_pos = (0, 0, 0)
-    req.cubeB_quat = (0, 0, 0, 1)
-    req.cubeC_pos = (0, 0, 0)
-    req.cubeC_quat = (0, 0, 0, 1)
-    req.eef_pos = (0, 0, 0)
-    req.eef_quat = (0, 0, 0, 1)
-    req.obj = 0
-    req.task = 0
-    req.target_pos = (0, 0, 0)
-    req.target_quat = (0, 0, 0, 1)
-    req.q_gripper = (0, 0)
-    
-    action = get_action(req).action
-    arm = action[:6]
-    gripper = action[6]
-    rospy.loginfo(f'arm: {arm}')
-    rospy.loginfo(f'gripper: {gripper}')
-    return action
