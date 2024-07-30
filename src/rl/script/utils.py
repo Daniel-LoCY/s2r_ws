@@ -25,7 +25,7 @@ class TM:
         # tool_pose = (msg.tool_pose[0], msg.tool_pose[1], msg.tool_pose[2], msg.tool_pose[3], msg.tool_pose[4], msg.tool_pose[5])
         # pub_tf_static(tool_pose[0], tool_pose[1], tool_pose[2], tool_pose[3], tool_pose[4], tool_pose[5], "arm", "tool")
 
-    def send_script_client(self, cmd: str):
+    def send_script_client(self, cmd: str): #向 tm_driver/send_script 服務發送指令
         rospy.wait_for_service('tm_driver/send_script')
         try:
             tm_send_script = rospy.ServiceProxy('tm_driver/send_script', SendScript)
@@ -166,11 +166,14 @@ class TF():
             -----------------------------------
             return transform (translation, rotation)
         '''
+        # XR Buffer()
         tfBuffer = Buffer()
         _listener = TransformListener(tfBuffer)
         while not rospy.is_shutdown():
             try:
+                # lookup_transform：包含變換的詳細信息，包括源和目標坐標系、時間戳以及實際的變換數據
                 t = tfBuffer.lookup_transform(header_frame, child_frame, rospy.Time())
+                # transform：實際的變換數據，包括平移（translation）和旋轉（rotation）
                 transform = t.transform
                 # rospy.loginfo(transform)
                 

@@ -1,0 +1,40 @@
+    1  ls
+    2  cd ipt
+    3  cd opt
+    4  ls
+    5  cd s2r_ws/
+    6  ls
+    7  roslaunch rl rl.launch
+    8  roscore
+    9  catkin_make
+   10  sudo apt-get update
+   11  sudo apt-get install ros-noetic-control-msgs
+   12  catkin_make
+   13  sudo apt-get install ros-noetic-tf
+   14  catkin_make
+   15  sudo apt-get install ros-noetic-hardware-interface
+   16  catkin_make
+   17  roslaunch rl rl.launch
+   18  catkin_make
+   19  source devel/setup.bash
+   20  catkin_make
+   21  roslaunch rl rl.launch
+   22  pip install opencv-python
+   23  pip3 install opencv-python
+   24* 
+   25* pip 
+   26  pip3 install opencv-python
+   27  roslaunch rl rl.launch
+   28  pip3 install onnx
+   29  roslaunch rl rl.launch
+   30  pip3 install onnxruntime
+   31  roslaunch rl rl.launch
+   32  pwd
+   33  roslaunch rl rl.launch
+   34  pip uninstall opencv-python
+   35  pip install opencv-python-headless
+   36  roslaunch rl rl.launch
+   37  sudo apt-get install ros-<distro>-cv-bridge
+   38  sudo apt-get install ros-noetic-cv-bridge
+   39  roslaunch rl rl.launch
+   40  history > history.txt

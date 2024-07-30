@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-
+# camera <--> obj TF
 import cv2
 import numpy as np
 from scipy.spatial.transform import Rotation as R
@@ -54,11 +54,12 @@ while running:
 
         for i in range(len(ids)):
             id = ids[i][0]
+            # 標記相對於相機的旋轉、平移
             rvec = rvecs[i][0]
             tvec = tvecs[i][0]
 
             cv2.drawFrameAxes(frame, camera_matrix, dist_coeffs, rvec, tvec, 0.05)
-
+            # 計算相機的位置和方向-----------------------------
             R_mat, _ = cv2.Rodrigues(rvec)
             obj_position = tvec
 
@@ -69,7 +70,8 @@ while running:
             quat = quaternion_multiply(quat, _quat)
 
             t = (obj_position[0], obj_position[1], obj_position[2], quat[0], quat[1], quat[2], quat[3])
-
+            # -----------------------------------------------
+            # 發佈 TF 變換
             tf.pub_tf_orientation(t, f'camera_link{index}', f'object_{id}')
             
 

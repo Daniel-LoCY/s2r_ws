@@ -7,6 +7,7 @@ import numpy as np
 from custom_msg.srv import *
 # import tf.transformations as tf
 
+# XR rlRequest? rl.srv 產生 rlRequest rlResponse
 def req_action(obs: rlRequest):
     obs_list = [obs.cubeA_quat, obs.cubeA_pos, obs.cubeB_pos, obs.cubeB_quat, obs.cubeC_pos, obs.cubeC_quat, obs.eef_pos, obs.eef_quat, tuple([obs.obj]), tuple([obs.task]), obs.target_pos, obs.target_quat, obs.q_gripper]
     YOUR_OBS = np.array([np.concatenate(obs_list)])
@@ -54,7 +55,7 @@ def req_action(obs: rlRequest):
 
 
 if __name__ == '__main__':
-    model_path = "/home/daniel/s2r_ws/models/test.onnx"
+    model_path = "/opt/s2r_ws/models/test.onnx"
     onnx_model = onnx.load(model_path)
     onnx.checker.check_model(onnx_model)
     loaded_model = ort.InferenceSession(model_path)
